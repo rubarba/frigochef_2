@@ -7,16 +7,7 @@ export default function ScanPage() {
   const router = useRouter()
   const [photos, setPhotos] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [detectedItems, setDetectedItems] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const mockDetections = [
-    ['Ovos', 'Leite', 'Manteiga'],
-    ['Queijo', 'Iogurte', 'Tomate'],
-    ['Alface', 'Cenoura', 'Cebola'],
-    ['Massa', 'Arroz', 'Azeite'],
-    ['Alho', 'Batata', 'Sal']
-  ]
 
   const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -27,11 +18,6 @@ export default function ScanPage() {
       const base64 = reader.result as string
       const newPhotos = [...photos, base64]
       setPhotos(newPhotos)
-      
-      // Simular detecção
-      setTimeout(() => {
-        setDetectedItems(prev => [...prev, ...mockDetections[photos.length]])
-      }, 500)
     }
     reader.readAsDataURL(file)
   }
@@ -53,9 +39,8 @@ export default function ScanPage() {
       router.push('/ingredients')
     } catch (error) {
       console.error('Erro:', error)
-      // Fallback com mock
-      localStorage.setItem('detectedIngredients', JSON.stringify(detectedItems))
-      router.push('/ingredients')
+      alert('Erro ao processar imagens. Verifica a conexão.')
+      setIsProcessing(false)
     }
   }
 
@@ -64,7 +49,6 @@ export default function ScanPage() {
       <div className="flex-1 flex flex-col px-6 py-12">
         <div className="w-full max-w-md mx-auto flex-1 flex flex-col">
           
-          {/* Header */}
           <div className="mb-8">
             <button
               onClick={() => router.push('/')}
@@ -82,7 +66,6 @@ export default function ScanPage() {
             </p>
           </div>
 
-          {/* Grid de fotos */}
           <div className="flex-1">
             <div className="grid grid-cols-3 gap-3 mb-8">
               {photos.map((_, idx) => (
@@ -99,28 +82,8 @@ export default function ScanPage() {
                 </div>
               )}
             </div>
-
-            {/* Ingredientes detectados */}
-            {detectedItems.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-xl mb-6 animate-slide-up">
-                <p className="text-sm text-navy/60 mb-3">
-                  A detectar ingredientes...
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {detectedItems.map((item, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 bg-gradient-to-r from-navy/10 to-bronze/10 text-navy text-sm rounded-full font-medium animate-scale-in"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Botões */}
           <div className="space-y-3">
             {photos.length < 5 && (
               <button
@@ -142,7 +105,6 @@ export default function ScanPage() {
             )}
           </div>
 
-          {/* Input escondido */}
           <input
             ref={fileInputRef}
             type="file"
