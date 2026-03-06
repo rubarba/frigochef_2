@@ -23,20 +23,29 @@ export async function POST(request: NextRequest) {
       },
     }))
 
-    const prompt = `Analisa estas imagens e identifica apenas os alimentos visiveis.
+    const prompt = `Analisa estas imagens e identifica APENAS os alimentos e ingredientes que CONSEGUES VER CLARAMENTE.
 
-Regras:
+REGRAS CRÍTICAS:
 - NUNCA inventes ingredientes
-- Lista apenas o que ves claramente
-- Se nao tens certeza, nao incluas
-- Ignora utensilios e decoracao
+- NUNCA assumes o que pode estar dentro de embalagens fechadas
+- Lista APENAS o que vês DIRECTAMENTE na imagem
+- Se vês uma embalagem de leite fechada, escreve "Leite" (não o conteúdo)
+- Se vês legumes/fruta, identifica apenas os que vês claramente
+- Se não tens CERTEZA ABSOLUTA, NÃO INCLUIAS
+- Prefere detectar MENOS do que inventar
 
-Responde em JSON:
+IGNORA:
+- Utensílios, pratos, recipientes vazios
+- Decoração, mobília
+- Coisas que POSSAM estar lá mas não vês
+
+Responde APENAS com JSON válido:
 {
   "ingredients": ["ingrediente1", "ingrediente2"]
 }
 
-Portugues de Portugal.`
+Língua: Português de Portugal
+Atitude: CONSERVADOR - só lista o que vês COM CERTEZA.`
 
     const result = await model.generateContent([prompt, ...imageParts])
     const response = result.response.text()
@@ -49,7 +58,11 @@ Portugues de Portugal.`
         ingredients = parsed.ingredients || []
       }
     } catch {
-      ingredients = []
+      ingredients = response
+        .split('\n')
+        .filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'))
+        .map(line => line.replace(/^[-•]\s*/, '').trim())
+        .filter(Boolean)
     }
 
     ingredients = Array.from(new Set(ingredients.map(i => i.toLowerCase())))

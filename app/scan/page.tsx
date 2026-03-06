@@ -49,6 +49,7 @@ export default function ScanPage() {
       <div className="flex-1 flex flex-col px-6 py-12">
         <div className="w-full max-w-md mx-auto flex-1 flex flex-col">
           
+          {/* Header */}
           <div className="mb-8">
             <button
               onClick={() => router.push('/')}
@@ -66,6 +67,7 @@ export default function ScanPage() {
             </p>
           </div>
 
+          {/* Grid de fotos */}
           <div className="flex-1">
             <div className="grid grid-cols-3 gap-3 mb-8">
               {photos.map((_, idx) => (
@@ -84,6 +86,7 @@ export default function ScanPage() {
             </div>
           </div>
 
+          {/* Botões */}
           <div className="space-y-3">
             {photos.length < 5 && (
               <button
@@ -105,6 +108,7 @@ export default function ScanPage() {
             )}
           </div>
 
+          {/* Input escondido */}
           <input
             ref={fileInputRef}
             type="file"
